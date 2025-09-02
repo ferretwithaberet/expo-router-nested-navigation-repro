@@ -7,6 +7,7 @@ import {
 } from "@react-navigation/elements";
 import { NativeStackHeaderProps } from "@react-navigation/native-stack";
 import { useRouter } from "expo-router";
+import { Text } from "react-native";
 import tw from "twrnc";
 
 const getRoleIdentifier = (tenantId: number, role: string) =>
@@ -53,40 +54,57 @@ const Header = (props: NativeStackHeaderProps) => {
   return (
     <RNNHeader
       {...options}
+      headerStyle={{ height: 180 }}
       back={back}
       title={getHeaderTitle(options, route.name)}
       headerStatusBarHeight={0}
       headerTitle={() => (
-        <Picker
-          selectedValue={getRoleIdentifier(tenantId, role)}
-          onValueChange={(_, index) => {
-            const selectedOption = OPTIONS[index];
-            console.log("Selected role", selectedOption.value);
+        <>
+          <Text>With router.redirect</Text>
+          <Picker
+            selectedValue={getRoleIdentifier(tenantId, role)}
+            onValueChange={(_, index) => {
+              const selectedOption = OPTIONS[index];
+              console.log("Selected role", selectedOption.value);
 
-            // Does not work as expo-router seems to try to navigate in the <Tabs /> navigator
-            // router.replace({
-            //   pathname: "/[tenantId]/[role]/tab1",
-            //   params: {
-            //     tenantId: selectedOption.tenantId,
-            //     role: selectedOption.role,
-            //   },
-            // });
+              // Does not work as expo-router seems to try to navigate in the <Tabs /> navigator
+              router.replace({
+                pathname: "/[tenantId]/[role]/tab1",
+                params: {
+                  tenantId: selectedOption.tenantId,
+                  role: selectedOption.role,
+                },
+              });
+            }}
+          >
+            {OPTIONS.map((option) => (
+              <Picker.Item key={option.value} {...option} />
+            ))}
+          </Picker>
 
-            // Properly works, as it changes params at the root
-            router.replace({
-              pathname: "/root-redirect",
-              params: {
-                href: "/[tenantId]/[role]/tab1",
-                tenantId: selectedOption.tenantId,
-                role: selectedOption.role,
-              },
-            });
-          }}
-        >
-          {OPTIONS.map((option) => (
-            <Picker.Item key={option.value} {...option} />
-          ))}
-        </Picker>
+          <Text>With redirect to root-redirect</Text>
+          <Picker
+            selectedValue={getRoleIdentifier(tenantId, role)}
+            onValueChange={(_, index) => {
+              const selectedOption = OPTIONS[index];
+              console.log("Selected role", selectedOption.value);
+
+              // Properly works, as it changes params at the root
+              router.replace({
+                pathname: "/root-redirect",
+                params: {
+                  href: "/[tenantId]/[role]/tab1",
+                  tenantId: selectedOption.tenantId,
+                  role: selectedOption.role,
+                },
+              });
+            }}
+          >
+            {OPTIONS.map((option) => (
+              <Picker.Item key={option.value} {...option} />
+            ))}
+          </Picker>
+        </>
       )}
       headerTitleContainerStyle={tw`w-full`}
     />
